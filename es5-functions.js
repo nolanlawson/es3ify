@@ -140,6 +140,46 @@ exports.mapFun = wrapDynamic(exports.isArrayFun, 'map', function(arr) {
     };
 });
 
+exports.reduceFun = wrapDynamic(exports.isArrayFun, 'reduce', function(self) {
+   return function(fun, defaultVal) {
+       if (Array.prototype.reduce) {
+           return self.reduce(fun, defaultVal);
+       }
+       var length = self.length;
+
+       // If no callback function or if callback is not a callable function
+       if (!isFunction(fun)) {
+           throw new TypeError(fun + " is not a function");
+       }
+
+       var i = 0;
+       var result;
+       if (typeof defaultVal !== 'undefined') {
+           result = defaultVal;
+       } else {
+           do {
+               if (i in self) {
+                   result = self[i++];
+                   break;
+               }
+
+               // if array contains no values, no initial value to return
+               if (++i >= length) {
+                   throw new TypeError("reduce of empty array with no initial value");
+               }
+           } while (true);
+       }
+
+       for (; i < length; i++) {
+           if (i in self) {
+               result = fun.call(void 0, result, self[i], i);
+           }
+       }
+
+       return result;
+   };
+});
+
 exports.staticFunctions = [
     ['Array', 'isArray', exports.isArrayFun],
     ['Object', 'keys', exports.keysFun]
@@ -148,5 +188,6 @@ exports.staticFunctions = [
 exports.dynamicFunctions = [
     ['forEach', exports.forEachFun],
     ['bind', exports.bindFun],
-    ['map', exports.mapFun]
+    ['map', exports.mapFun],
+    ['reduce', exports.reduceFun]
 ];
