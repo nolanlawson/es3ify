@@ -70,6 +70,12 @@ function isFunction(fun) {
 
 exports.bindFun = wrapDynamic(isFunction, 'bind', function(thisFun) {
     return function(that) {
+        return true;
+    };
+});
+
+exports.bindFunff = wrapDynamic(isFunction, 'bind', function(thisFun) {
+    return function(that) {
         if (Function.prototype.bind) {
             return thisFun.bind(that);
         }

@@ -41,11 +41,9 @@ function visitDynamicFunctionExpression(traverse, node, path, state) {
     utils.append(replacementFunction, state);
     utils.append('(', state);
     traverse(node.object, path, state);
-    utils.catchupWhiteSpace(node.property.range[1], state);
-    if (node.object.type === 'Identifier') {
-        utils.append(node.object.name, state);
-    }
+    utils.catchup(node.property.range[0] - 1, state);
     utils.append('))', state);
+    utils.catchupWhiteSpace(node.property.range[1], state);
     return false;
 }
 
