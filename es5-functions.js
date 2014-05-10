@@ -6,14 +6,14 @@ function wrap(fun) {
     return '((' + fun.toString().replace(/\s+/g, ' ') + ')())'
 }
 
-exports.isArray = wrap(function() {
+exports.isArrayFun = wrap(function() {
     return Array.isArray || function(value) {
         return (value && typeof value == 'object' && typeof value.length == 'number' &&
             Object.prototype.toString.call(value) == '[object Array]') || false;
     };
 });
 
-exports.keys = wrap(function() {
+exports.keysFun = wrap(function() {
     return Object.keys || function(object) {
         if ((typeof object !== 'object' &&
             typeof object !== 'function') ||
@@ -46,11 +46,10 @@ function wrapDynamic(parentTest, memberName, fun) {
     return ret;
 };
 
-exports.forEach = wrapDynamic(exports.isArray, 'forEach', function(arr) {
+exports.forEachFun = wrapDynamic(exports.isArrayFun, 'forEach', function(arr) {
     return function(fun) {
         if (Array.prototype.forEach) {
-            arr.forEach(fun);
-            return;
+            return arr.forEach(fun);
         }
         var i = -1;
         var length = arr.length;
@@ -63,11 +62,67 @@ exports.forEach = wrapDynamic(exports.isArray, 'forEach', function(arr) {
     };
 });
 
+function isFunction(fun) {
+    return typeof fun === 'function';
+}
+
+exports.bindFun = wrapDynamic(isFunction, 'bind', function(thisFun) {
+    return function(that) {
+        if (Function.prototype.bind) {
+            return thisFun.bind(that);
+        }
+
+        function Empty() {}
+
+        var target = thisFun;
+        if (!isFunction(target)) {
+            throw new TypeError("Function.prototype.bind called on incompatible " + target);
+        }
+        var args = Array.prototype.slice.call(arguments, 1);
+        var binder = function () {
+
+            if (this instanceof bound) {
+                var result = target.apply(
+                    this,
+                    args.concat(Array.prototype.slice.call(arguments))
+                );
+                if (Object(result) === result) {
+                    return result;
+                }
+                return this;
+
+            } else {
+                return target.apply(
+                    that,
+                    args.concat(Array.prototype.slice.call(arguments))
+                );
+
+            }
+
+        };
+        var boundLength = Math.max(0, target.length - args.length);
+        var boundArgs = [];
+        for (var i = 0; i < boundLength; i++) {
+            boundArgs.push("$" + i);
+        }
+        var bound = Function("binder", "return function(" + boundArgs.join(",") + "){return binder.apply(this,arguments)}")(binder);
+
+        if (target.prototype) {
+            Empty.prototype = target.prototype;
+            bound.prototype = new Empty();
+            Empty.prototype = null;
+        }
+
+        return bound;
+    };
+});
+
 exports.staticFunctions = [
-    ['Array', 'isArray', exports.isArray],
-    ['Object', 'keys', exports.keys]
+    ['Array', 'isArray', exports.isArrayFun],
+    ['Object', 'keys', exports.keysFun]
 ];
 
 exports.dynamicFunctions = [
-    ['forEach', exports.forEach]
+    ['forEach', exports.forEachFun],
+    ['bind', exports.bindFun]
 ];

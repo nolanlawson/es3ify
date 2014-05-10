@@ -2,9 +2,10 @@ var transform = require('../index.js').transform;
 
 var es5Functions = require('../es5-functions');
 
-var isArray = es5Functions.isArray;
-var keys = es5Functions.keys;
-var forEach = es5Functions.forEach;
+var isArray = es5Functions.isArrayFun;
+var keys = es5Functions.keysFun;
+var forEach = es5Functions.forEachFun;
+var bind = es5Functions.bindFun;
 
 describe('es3ify', function() {
     it('should quote property keys', function() {
@@ -50,5 +51,10 @@ describe('es3ify', function() {
     it('should transform Array.prototype.forEach', function() {
         expect(transform('[1, 2, 3].forEach(function (el, i) { console.log(el); });'))
             .toEqual('(' + forEach + '([1, 2, 3]))(function (el, i) { console.log(el); });');
-    })
+    });
+
+    it('should transform Function.prototype.bind', function() {
+        expect(transform('foo.bind(bar);'))
+            .toEqual('(' + bind + '(foo))(bar);');
+    });
 });
