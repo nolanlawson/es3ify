@@ -85,4 +85,9 @@ describe('es3ify', function() {
         expect(transform('foo.baz.bind(bar);'))
             .toEqual('(' + bind + '(foo.baz))(bar);');
     });
+
+    it('should not change hasOwnProperty', function() {
+        expect(transform('errors.hasOwnProperty(key);'))
+            .toEqual('errors.hasOwnProperty(key);');
+    })
 });

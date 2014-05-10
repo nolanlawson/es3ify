@@ -50,7 +50,9 @@ function visitDynamicFunctionExpression(traverse, node, path, state) {
 visitDynamicFunctionExpression.test = function(node, path, state) {
     return node.type === Syntax.MemberExpression &&
         node.property.type === Syntax.Identifier &&
-        dynamicMap[node.property.name];
+        dynamicMap[node.property.name] &&
+        dynamicMap.hasOwnProperty(node.property.name)
+        ;
 }
 
 function visitStaticFunctionExpression(traverse, node, path, state) {
