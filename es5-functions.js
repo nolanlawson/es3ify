@@ -70,12 +70,6 @@ function isFunction(fun) {
 
 exports.bindFun = wrapDynamic(isFunction, 'bind', function(thisFun) {
     return function(that) {
-        return true;
-    };
-});
-
-exports.bindFunff = wrapDynamic(isFunction, 'bind', function(thisFun) {
-    return function(that) {
         if (Function.prototype.bind) {
             return thisFun.bind(that);
         }
@@ -219,6 +213,5 @@ exports.dynamicFunctions = [
     ['forEach', exports.forEachFun],
     ['bind', exports.bindFun],
     ['map', exports.mapFun],
-    ['reduce', exports.reduceFun],
-    ['filter', exports.filterFun]
+    ['reduce', exports.reduceFun]
 ];

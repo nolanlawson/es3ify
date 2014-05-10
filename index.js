@@ -53,7 +53,7 @@ visitDynamicFunctionExpression.test = function(node, path, state) {
         dynamicMap[node.property.name] &&
         dynamicMap.hasOwnProperty(node.property.name)
         ;
-}
+};
 
 function visitStaticFunctionExpression(traverse, node, path, state) {
     var replacementFunction = staticMap[node.object.name][node.property.name];
@@ -67,8 +67,11 @@ visitStaticFunctionExpression.test = function(node, path, state) {
     return node.type === Syntax.MemberExpression &&
         node.property.type === Syntax.Identifier &&
         staticMap[node.object.name] &&
-        staticMap[node.object.name][node.property.name];
-}
+        staticMap.hasOwnProperty(node.object.name) &&
+        staticMap[node.object.name][node.property.name] &&
+        staticMap[node.object.name].hasOwnProperty(node.property.name)
+        ;
+};
 
 // In: x.class = 3;
 // Out: x["class"] = 3;
