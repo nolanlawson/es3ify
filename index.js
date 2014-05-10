@@ -2,6 +2,7 @@ var Syntax = require('esprima-fb').Syntax;
 var jstransform = require('jstransform');
 var through = require('through');
 var utils = require('jstransform/src/utils');
+var es5Functions = require('./es5-functions');
 
 var reserved = [
     "break", "case", "catch", "continue", "default", "delete", "do", "else",
@@ -11,12 +12,26 @@ var reserved = [
     "double", "enum", "export", "extends", "final", "float", "goto",
     "implements", "import", "int", "interface", "long", "native", "package",
     "private", "protected", "public", "short", "static", "super",
-    "synchronized", "throws", "transient", "volatile",
+    "synchronized", "throws", "transient", "volatile"
 ];
 var reservedDict = {};
 reserved.forEach(function(k) {
     reservedDict[k] = true;
 });
+
+function visitFunctionExpression(traverse, node, path, state) {
+    traverse(node.object, path, state);
+    utils.append(es5Functions.isArray, state);
+    utils.catchupWhiteSpace(node.property.range[1], state);
+    return false;
+}
+
+visitFunctionExpression.test = function(node, path, state) {
+    return node.type === Syntax.MemberExpression &&
+        node.property.type === Syntax.Identifier &&
+        node.property.name === 'isArray' &&
+        node.object.name === 'Array';
+}
 
 // In: x.class = 3;
 // Out: x["class"] = 3;
@@ -98,6 +113,7 @@ visitArrayOrObjectExpression.test = function(node, path, state) {
 };
 
 var visitorList = [
+    visitFunctionExpression,
     visitMemberExpression,
     visitProperty,
     visitArrayOrObjectExpression

@@ -1,5 +1,9 @@
 var transform = require('../index.js').transform;
 
+var es5Functions = require('../es5-functions');
+
+var isArray = es5Functions.isArray;
+
 describe('es3ify', function() {
     it('should quote property keys', function() {
         expect(transform('x = {dynamic: 0, static: 17};'))
@@ -29,5 +33,10 @@ describe('es3ify', function() {
     it('should transform everything at once', function() {
         expect(transform('({a:2,\tfor :[2,,3,],}\n.class)'))
                 .toEqual('({a:2,\t"for" :[2,,3]}[\n"class"])');
+    });
+
+    it('should transform Array.isArray', function() {
+        expect(transform('if (Array.isArray(["foo"])) console.log("hello");'))
+                .toEqual('if (' + isArray + '(["foo"])) console.log("hello");');
     });
 });
