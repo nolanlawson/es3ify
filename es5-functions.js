@@ -5,7 +5,7 @@
 //
 
 function wrap(fun) {
-    return '((' + fun.toString().replace(/\s+/g, ' ') + ')())'
+    return '((' + fun.toString().replace(/\s+/g, ' ') + ')())';
 }
 
 exports.isArrayFun = wrap(function() {
