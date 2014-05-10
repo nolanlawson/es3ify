@@ -28,6 +28,30 @@ es5Functions.staticFunctions.forEach(function(arr) {
     staticMap[objectName][memberName] = replacementFunction;
 });
 
+var dynamicMap = {};
+es5Functions.dynamicFunctions.forEach(function(arr) {
+    var memberName = arr[0];
+    var replacementFunction = arr[1];
+    dynamicMap[memberName] = replacementFunction;
+})
+
+function visitDynamicFunctionExpression(traverse, node, path, state) {
+    var replacementFunction = dynamicMap[node.property.name];
+    utils.append('(', state);
+    utils.append(replacementFunction, state);
+    utils.append('(', state);
+    traverse(node.object, path, state);
+    utils.catchupWhiteSpace(node.property.range[1], state);
+    utils.append('))', state);
+    return false;
+}
+
+visitDynamicFunctionExpression.test = function(node, path, state) {
+    return node.type === Syntax.MemberExpression &&
+        node.property.type === Syntax.Identifier &&
+        dynamicMap[node.property.name];
+}
+
 function visitStaticFunctionExpression(traverse, node, path, state) {
     var replacementFunction = staticMap[node.object.name][node.property.name];
     traverse(node.object, path, state);
@@ -124,6 +148,7 @@ visitArrayOrObjectExpression.test = function(node, path, state) {
 
 var visitorList = [
     visitStaticFunctionExpression,
+    visitDynamicFunctionExpression,
     visitMemberExpression,
     visitProperty,
     visitArrayOrObjectExpression

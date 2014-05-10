@@ -1,7 +1,9 @@
+//
+// Static functions like Array.isArray and Object.keys
+//
 
 function wrap(fun) {
-    var res = '((' + fun.toString().replace(/\s+/g, ' ') + ')())'
-    return res;
+    return '((' + fun.toString().replace(/\s+/g, ' ') + ')())'
 }
 
 exports.isArray = wrap(function() {
@@ -29,7 +31,43 @@ exports.keys = wrap(function() {
     };
 });
 
+//
+// Dynamic functions, such as Array.prototype.forEach and Function.prototype.bind
+// For these, for simplicity's sake, we replace the entire function with a
+// wrapper that checks the type and uses the shim only if necessary. This
+// covers cases where e.g. the user decides to name a method on a non-Array
+// prototype "forEach", for whatever reason.
+//
+
+function wrapDynamic(parentTest, memberName, fun) {
+    var ret = '(function (x) { return (' + parentTest.toString() + ')(x) ? ((' +
+        fun.toString() + ')(x)) : x.' + memberName + ';})'
+    ret = ret.replace(/\s+/g, ' ');
+    return ret;
+};
+
+exports.forEach = wrapDynamic(exports.isArray, 'forEach', function(arr) {
+    return function(fun) {
+        if (Array.prototype.forEach) {
+            arr.forEach(fun);
+            return;
+        }
+        var i = -1;
+        var length = arr.length;
+
+        while (++i < length) {
+            if (i in arr) {
+                fun.call(arr, arr[i], i);
+            }
+        }
+    };
+});
+
 exports.staticFunctions = [
     ['Array', 'isArray', exports.isArray],
     ['Object', 'keys', exports.keys]
+];
+
+exports.dynamicFunctions = [
+    ['forEach', exports.forEach]
 ];

@@ -4,6 +4,7 @@ var es5Functions = require('../es5-functions');
 
 var isArray = es5Functions.isArray;
 var keys = es5Functions.keys;
+var forEach = es5Functions.forEach;
 
 describe('es3ify', function() {
     it('should quote property keys', function() {
@@ -45,4 +46,9 @@ describe('es3ify', function() {
         expect(transform('console.log(Object.keys({foo: bar}).indexOf("foo"));'))
             .toEqual('console.log(' + keys + '({foo: bar}).indexOf("foo"));');
     });
+
+    it('should transform Array.prototype.forEach', function() {
+        expect(transform('[1, 2, 3].forEach(function (el, i) { console.log(el); });'))
+            .toEqual('(' + forEach + '([1, 2, 3]))(function (el, i) { console.log(el); });');
+    })
 });
