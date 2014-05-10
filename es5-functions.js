@@ -140,6 +140,7 @@ exports.mapFun = wrapDynamic(exports.isArrayFun, 'map', function(arr) {
     };
 });
 
+// TODO: varargs for reduce (defaultVal === undefined is not a sufficient test)
 exports.reduceFun = wrapDynamic(exports.isArrayFun, 'reduce', function(self) {
    return function(fun, defaultVal) {
        if (Array.prototype.reduce) {
@@ -147,7 +148,6 @@ exports.reduceFun = wrapDynamic(exports.isArrayFun, 'reduce', function(self) {
        }
        var length = self.length;
 
-       // If no callback function or if callback is not a callable function
        if (!isFunction(fun)) {
            throw new TypeError(fun + " is not a function");
        }
@@ -163,7 +163,6 @@ exports.reduceFun = wrapDynamic(exports.isArrayFun, 'reduce', function(self) {
                    break;
                }
 
-               // if array contains no values, no initial value to return
                if (++i >= length) {
                    throw new TypeError("reduce of empty array with no initial value");
                }
