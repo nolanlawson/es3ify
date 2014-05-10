@@ -89,5 +89,10 @@ describe('es3ify', function() {
     it('should not change hasOwnProperty', function() {
         expect(transform('errors.hasOwnProperty(key);'))
             .toEqual('errors.hasOwnProperty(key);');
-    })
+    });
+
+    it('should ignore left-hand-side assignments', function() {
+        expect(transform('foo.filter = bar;'))
+            .toEqual('foo.filter = bar;');
+    });
 });

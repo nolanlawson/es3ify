@@ -213,5 +213,6 @@ exports.dynamicFunctions = [
     ['forEach', exports.forEachFun],
     ['bind', exports.bindFun],
     ['map', exports.mapFun],
-    ['reduce', exports.reduceFun]
+    ['reduce', exports.reduceFun],
+    ['filter', exports.filterFun]
 ];

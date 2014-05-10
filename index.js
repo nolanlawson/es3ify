@@ -33,7 +33,7 @@ es5Functions.dynamicFunctions.forEach(function(arr) {
     var memberName = arr[0];
     var replacementFunction = arr[1];
     dynamicMap[memberName] = replacementFunction;
-})
+});
 
 function visitDynamicFunctionExpression(traverse, node, path, state) {
     var replacementFunction = dynamicMap[node.property.name];
@@ -50,6 +50,7 @@ function visitDynamicFunctionExpression(traverse, node, path, state) {
 visitDynamicFunctionExpression.test = function(node, path, state) {
     return node.type === Syntax.MemberExpression &&
         node.property.type === Syntax.Identifier &&
+        path[0].type === 'CallExpression' &&
         dynamicMap[node.property.name] &&
         dynamicMap.hasOwnProperty(node.property.name)
         ;
