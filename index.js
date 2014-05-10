@@ -19,18 +19,28 @@ reserved.forEach(function(k) {
     reservedDict[k] = true;
 });
 
-function visitFunctionExpression(traverse, node, path, state) {
+var staticMap = {};
+es5Functions.staticFunctions.forEach(function(arr) {
+    var objectName = arr[0];
+    var memberName = arr[1];
+    var replacementFunction = arr[2];
+    staticMap[objectName] = staticMap[objectName] || {};
+    staticMap[objectName][memberName] = replacementFunction;
+});
+
+function visitStaticFunctionExpression(traverse, node, path, state) {
+    var replacementFunction = staticMap[node.object.name][node.property.name];
     traverse(node.object, path, state);
-    utils.append(es5Functions.isArray, state);
+    utils.append(replacementFunction, state);
     utils.catchupWhiteSpace(node.property.range[1], state);
     return false;
 }
 
-visitFunctionExpression.test = function(node, path, state) {
+visitStaticFunctionExpression.test = function(node, path, state) {
     return node.type === Syntax.MemberExpression &&
         node.property.type === Syntax.Identifier &&
-        node.property.name === 'isArray' &&
-        node.object.name === 'Array';
+        staticMap[node.object.name] &&
+        staticMap[node.object.name][node.property.name];
 }
 
 // In: x.class = 3;
@@ -113,7 +123,7 @@ visitArrayOrObjectExpression.test = function(node, path, state) {
 };
 
 var visitorList = [
-    visitFunctionExpression,
+    visitStaticFunctionExpression,
     visitMemberExpression,
     visitProperty,
     visitArrayOrObjectExpression

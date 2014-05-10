@@ -3,6 +3,7 @@ var transform = require('../index.js').transform;
 var es5Functions = require('../es5-functions');
 
 var isArray = es5Functions.isArray;
+var keys = es5Functions.keys;
 
 describe('es3ify', function() {
     it('should quote property keys', function() {
@@ -38,5 +39,10 @@ describe('es3ify', function() {
     it('should transform Array.isArray', function() {
         expect(transform('if (Array.isArray(["foo"])) console.log("hello");'))
                 .toEqual('if (' + isArray + '(["foo"])) console.log("hello");');
+    });
+
+    it('should transform Object.keys', function() {
+        expect(transform('console.log(Object.keys({foo: bar}).indexOf("foo"));'))
+            .toEqual('console.log(' + keys + '({foo: bar}).indexOf("foo"));');
     });
 });
