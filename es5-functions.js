@@ -179,6 +179,31 @@ exports.reduceFun = wrapDynamic(exports.isArrayFun, 'reduce', function(self) {
    };
 });
 
+exports.filterFun = wrapDynamic(exports.isArrayFun, 'filter', function(self) {
+    return function (fun) {
+        if (Array.prototype.filter) {
+            return self.filter(fun);
+        }
+        var length = self.length,
+            result = [],
+            value;
+
+        if (typeof fun !== 'function') {
+            throw new TypeError(fun + " is not a function");
+        }
+
+        for (var i = 0; i < length; i++) {
+            if (i in self) {
+                value = self[i];
+                if (fun.call(self, value, i)) {
+                    result.push(value);
+                }
+            }
+        }
+        return result;
+    };
+});
+
 exports.staticFunctions = [
     ['Array', 'isArray', exports.isArrayFun],
     ['Object', 'keys', exports.keysFun]
@@ -188,5 +213,6 @@ exports.dynamicFunctions = [
     ['forEach', exports.forEachFun],
     ['bind', exports.bindFun],
     ['map', exports.mapFun],
-    ['reduce', exports.reduceFun]
+    ['reduce', exports.reduceFun],
+    ['filter', exports.filterFun]
 ];

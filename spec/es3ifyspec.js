@@ -8,6 +8,7 @@ var forEach = es5Functions.forEachFun;
 var bind = es5Functions.bindFun;
 var map = es5Functions.mapFun;
 var reduce = es5Functions.reduceFun;
+var filter = es5Functions.filterFun;
 
 describe('es3ify', function() {
     it('should quote property keys', function() {
@@ -70,6 +71,11 @@ describe('es3ify', function() {
             .toEqual('(' + reduce + '([1, 2, 3]))(function (a, b) { return a + b }, 0);');
     });
 
+    it('should transform Array.prototype.filter', function() {
+        expect(transform('[1, 2, 3].filter(function (x) { return x % 2 === 1; });'))
+            .toEqual('(' + filter + '([1, 2, 3]))(function (x) { return x % 2 === 1; });');
+        console.log('(' + filter + '([1, 2, 3]))(function (x) { return x % 2 === 1; });');
 
+    });
 
 });
