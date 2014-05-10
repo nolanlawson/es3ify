@@ -1,3 +1,5 @@
+'use strict';
+
 //
 // Static functions like Array.isArray and Object.keys
 //
@@ -117,6 +119,27 @@ exports.bindFun = wrapDynamic(isFunction, 'bind', function(thisFun) {
     };
 });
 
+exports.mapFun = wrapDynamic(exports.isArrayFun, 'map', function(arr) {
+    return function(fun) {
+        if (Array.prototype.map) {
+            return arr.map(fun);
+        }
+        var length = arr.length;
+        var result = new Array(length);
+
+        if (typeof fun !== 'function') {
+            throw new TypeError(fun + " is not a function");
+        }
+
+        for (var i = 0; i < length; i++) {
+            if (i in arr) {
+                result[i] = fun.call(arr, arr[i], i);
+            }
+        }
+        return result;
+    };
+});
+
 exports.staticFunctions = [
     ['Array', 'isArray', exports.isArrayFun],
     ['Object', 'keys', exports.keysFun]
@@ -124,5 +147,6 @@ exports.staticFunctions = [
 
 exports.dynamicFunctions = [
     ['forEach', exports.forEachFun],
-    ['bind', exports.bindFun]
+    ['bind', exports.bindFun],
+    ['map', exports.mapFun]
 ];

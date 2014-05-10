@@ -6,6 +6,7 @@ var isArray = es5Functions.isArrayFun;
 var keys = es5Functions.keysFun;
 var forEach = es5Functions.forEachFun;
 var bind = es5Functions.bindFun;
+var map = es5Functions.mapFun;
 
 describe('es3ify', function() {
     it('should quote property keys', function() {
@@ -57,4 +58,13 @@ describe('es3ify', function() {
         expect(transform('foo.bind(bar);'))
             .toEqual('(' + bind + '(foo))(bar);');
     });
+
+    it('should transform Array.prototype.forEach', function() {
+        expect(transform('["a", "b", "c"].map(function (el, i) { return el.toUpperCase(); });'))
+            .toEqual('(' + map + '(["a", "b", "c"]))(function (el, i) { return el.toUpperCase(); });');
+        console.log('(' + map + '(["a", "b", "c"]))(function (el, i) { return el.toUpperCase(); });');
+
+    });
+
+
 });
