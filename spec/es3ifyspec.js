@@ -74,8 +74,15 @@ describe('es3ify', function() {
     it('should transform Array.prototype.filter', function() {
         expect(transform('[1, 2, 3].filter(function (x) { return x % 2 === 1; });'))
             .toEqual('(' + filter + '([1, 2, 3]))(function (x) { return x % 2 === 1; });');
-        console.log('(' + filter + '([1, 2, 3]))(function (x) { return x % 2 === 1; });');
-
     });
 
+    it('should transform Function.prototype.bind with bracket notation', function() {
+        expect(transform('foo["baz"].bind(bar);'))
+            .toEqual('(' + bind + '(foo["baz"]))(bar);');
+    });
+
+    it('should transform Function.prototype.bind with dot notation', function() {
+        expect(transform('foo.baz.bind(bar);'))
+            .toEqual('(' + bind + '(foo.baz))(bar);');
+    });
 });
